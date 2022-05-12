@@ -1,3 +1,4 @@
+# coding: utf-8
 from cards.card import CardInfo, ApduInterface
 
 
