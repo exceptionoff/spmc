@@ -327,5 +327,5 @@ if __name__ == '__main__':
         program = Program()
         program.main_loop()
     except Program.Critical as err:
-        Program._printCritical(err.msg)
+        print(err.msg)
         sys.exit(1)
