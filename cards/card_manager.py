@@ -3,7 +3,7 @@
 
 import importlib
 import typing
-from cardreader_manager import CardReaderManager
+from cards.cardreader_manager import CardReaderManager
 from cards.cards_types_list import get_card_types
 from cards.card import Apdu_command, ApduInterface, CardInfo
 
