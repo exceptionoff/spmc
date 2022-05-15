@@ -255,14 +255,19 @@ class Program:
                 command = f'self.{u_command}' + f'({",".join(u_param)})'
                 exec(command)
 
-            except self.Error as err:
-                print("Error:", err.msg)
-
             except self.Dialog as dialog:
                 dialog.get_answer()
 
             except self.Input as _input:
                 _input.get_value()
+
+            except (self.Warning, self.Error) as err:
+                print(err.msg)
+
+            except self.Critical as err:
+                print(err.msg)
+                sys.exit(1)
+
 
             except TypeError as err:
                 warning_msg = 'Invalid command arguments!'
@@ -323,9 +328,6 @@ class Program:
 
 
 if __name__ == '__main__':
-    try:
-        program = Program()
-        program.main_loop()
-    except Program.Critical as err:
-        print(err.msg)
-        sys.exit(1)
+    program = Program()
+    program.main_loop()
+
