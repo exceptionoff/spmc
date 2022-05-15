@@ -3,7 +3,7 @@
 import typing
 from hashlib import sha256
 import bip39
-from crypt_engine.crypto_algorithms import encryptAlg, EncryptAlgProgramId_to_Name, EncryptAlgHeader
+from crypt_engine.crypto_algorithms import encryptAlgs, EncryptAlgProgramId_to_Name, EncryptAlgHeader
 from cards.cards_types_list import listTypeCards, TypeCardsProgramId_to_Name
 
 
@@ -34,7 +34,7 @@ class CardMarkup:
                cls.version_software.to_bytes(2, 'big') +\
                b'\x00' * 5
         data += sha256(data).digest()[:4]
-        data += encryptAlg[info.enc_alg].program_id
+        data += encryptAlgs[info.enc_alg].program_id
         data += info.count_words_seed.to
         data += info.encrypted_seed
         data += info.to_bytes(1, 'big')
@@ -57,8 +57,8 @@ class CardMarkup:
         try:
             enc_alg_name = EncryptAlgProgramId_to_Name[bytes_[29:31]]
             count_words_seed = bytes_[31]
-            size_enc_seed = cls._size_encrypted_seed(encryptAlg[enc_alg_name], bip39.get_entropy_bits(count_words_seed) // 8)
-            size_iv = encryptAlg[enc_alg_name].iv_size
+            size_enc_seed = cls._size_encrypted_seed(encryptAlgs[enc_alg_name], bip39.get_entropy_bits(count_words_seed) // 8)
+            size_iv = encryptAlgs[enc_alg_name].iv_size
 
             size_without_checksum = cls.FieldStructure.header_size + size_enc_seed + size_iv
             if sha256(bytes_[:size_without_checksum]).digest()[:4] != bytes_[size_without_checksum:size_without_checksum+4]:
@@ -93,7 +93,7 @@ class CardMarkup:
 
     @classmethod
     def _size_iv(cls, enc_alg_name: str):
-        return encryptAlg[enc_alg_name].iv_size
+        return encryptAlgs[enc_alg_name].iv_size
 
     @classmethod
     def _size_encrypted_seed(cls, enc_alg: EncryptAlgHeader, seed_size: int):

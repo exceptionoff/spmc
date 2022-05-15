@@ -4,7 +4,7 @@
 import importlib
 import typing
 from cardreader_manager import CardReaderManager
-from cards.cards_types_list import listTypeCards
+from cards.cards_types_list import get_card_types
 from cards.card import Apdu_command, ApduInterface, CardInfo
 
 
@@ -40,7 +40,7 @@ class CardManager(CardReaderManager):
 
     @classmethod
     def card_type_list(cls) -> typing.List[str]:
-        lst = [typeCards.typename for typeCards in listTypeCards]
+        lst = get_card_types()
         if not lst:
             raise CardManager.NoCardTypes()
         return lst

@@ -1,14 +1,14 @@
 # coding: utf-8
 # The file containing the program
 
-import os
 import sys
 import argparse
 import typing
 import bip39
 from cards.card_manager import CardManager
-from cards.cards_types_list import listTypeCards
+from cards.cards_types_list import get_card_types, NoCardTypes
 from cards.card_markup import CardMarkup
+from crypt_engine.crypto_algorithms import get_encrypt_algorithms, NoEncryptAlgorithms
 
 
 class Program:
@@ -203,16 +203,6 @@ class Program:
     def check_card_type(self):
         pass
 
-    def __init__(self):
-        self.program_warnings = []
-        self.debug_mode = False
-
-        self.__parse_args()
-        self._load_card_types()
-        self.__check_cardreaders()
-        for warning_msg in self.program_warnings:
-            print('Warning:', warning_msg)
-
     def _parse_user_input(self, command: str):
         command_name = command.split(' ')[0]
 
@@ -297,20 +287,39 @@ class Program:
             except CardMarkup.CardIsNotMarkup as err:
                 print(Program.Error(err.msg))
 
+    def __init__(self):
+        self.program_warnings = []
+        self.debug_mode = False
+        self.__parse_args()
+        self._check_card_types()
+        self._check_encrypt_algorithms()
+        self._check_cardreaders()
+        for warning_msg in self.program_warnings:
+            print('Warning:', warning_msg)
+
     def __parse_args(self):
         parser = argparse.ArgumentParser()
         parser.add_argument('--debug_mode', type=int, choices=[0, 1])
         args = parser.parse_args()
         self.debug_mode = bool(args.debug_mode)
 
-    def __check_cardreaders(self):
+    def _check_cardreaders(self):
         if not CardManager.readers_list():
             warning_msg = 'No card readers found!\n' \
                           '(Please connect a card reader to your device)'
             self.program_warnings.append(warning_msg)
 
-    def _load_card_types(self):
-        assert False
+    def _check_card_types(self):
+        try:
+            return get_card_types()
+        except NoCardTypes:
+            raise Program.Critical('No supported card types!')
+
+    def _check_encrypt_algorithms(self):
+        try:
+            return get_encrypt_algorithms()
+        except NoEncryptAlgorithms:
+            raise Program.Critical('No supported encrypt algorithms!')
 
 
 if __name__ == '__main__':

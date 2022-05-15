@@ -14,7 +14,7 @@ TypeCardsProgramId_to_Name = {typeCard.program_id: typeCard.typename for typeCar
 class NoCardTypes(Exception):
     def __init__(self):
         super().__init__()
-        self.msg = "'The application does not have supported card types!"
+        self.msg = "The application does not have supported card types!"
 
 
 def get_card_types():
