@@ -4,7 +4,7 @@ import typing
 from hashlib import sha256
 import bip39
 from crypt_engine.crypto_algorithms import encryptAlg, EncryptAlgProgramId_to_Name, EncryptAlgHeader
-from cards.cards_list import listTypeCards, TypeCardsProgramId_to_Name
+from cards.cards_types_list import listTypeCards, TypeCardsProgramId_to_Name
 
 
 VERSION_SOFTWARE = 1
