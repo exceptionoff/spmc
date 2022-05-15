@@ -109,7 +109,7 @@ class Program:
 
 
     def exit(self, code: typing.Optional[int] = None) -> None:
-        if not code:
+        if code is None:
             sys.exit(0)
         raise Program.Dialog('Are you sure you want to exit the program?',
                              {'yes': f'sys.exit({code})',
@@ -203,56 +203,39 @@ class Program:
     def check_card_type(self):
         pass
 
-    def _parse_user_input(self, command: str):
-        command_name = command.split(' ')[0]
+    def __parse_input(self, input_: str) -> typing.Tuple[str, typing.List[str]]:
+        start_end = {'"': '"', "'": "'", '(': ')', '[': ']', '{': '}'}
 
-        command_params = []
-        params = command.removeprefix(command_name)
-        index = 0
+        command = input_.split(' ')[0]
+        params = []
 
-        while index < len(params):
-            if params[index] == ' ':
-                pass
-            elif params[index] in ['"', "'"]:
-                sep = params[index]
-                index += 1
-                param = ''
-                while index < len(params):
-                    if params[index] == sep:
-                        index += 1
-                        if index >= len(params):
-                            break
-                        elif params[index] != ' ':
-                            raise SyntaxError('Arguments must be separated by spaces!')
-                        break
-                    elif index == len(params) - 1:
-                        raise SyntaxError('The bracket is not closed!')
-                    param += params[index]
-                    index += 1
-                command_params.append('"' + param + '"')
+        param = ''
+        for i in input_.split(' ')[1:]:
+            if i[0] in start_end.keys():
+                if i[-1] == start_end[i[0]]:
+                    params.append(i)
+                else:
+                    end = start_end[i[0]]
+                    param += i
+            elif param:
+                param += ' ' + i
+                if i[-1] == end:
+                    params.append(param)
+                    param = ''
             else:
-                param = ''
-                while index < len(params):
-                    if params[index] == ' ':
-                        break
-                    elif params[index] in ['"', "'"]:
-                        raise SyntaxError('Incorrect identifier name!')
-                    param += params[index]
-                    index += 1
-                command_params.append(param)
+                params.append(i)
 
-            index += 1
-        return command_name, command_params
+        return command, params
+
+    def _input_to_command(self, input_: str) -> str:
+        command, params = self.__parse_input(input_)
+        return f'{command}({",".join(params)})'
 
     def main_loop(self):
         while True:
             try:
                 u_input = input('>>> ')
-                u_command, u_param = self._parse_user_input(u_input)
-                if u_command[:2] == '__' or (u_command[:1] == '_' and not self.debug_mode) or u_command == 'main_loop':
-                    raise AttributeError(f"'Program' object has no attribute '{u_command}'")
-
-                command = f'self.{u_command}' + f'({",".join(u_param)})'
+                command = 'self.' + self._input_to_command(u_input)
                 exec(command)
 
             except self.Dialog as dialog:
@@ -267,7 +250,6 @@ class Program:
             except self.Critical as err:
                 print(err.msg)
                 sys.exit(1)
-
 
             except TypeError as err:
                 warning_msg = 'Invalid command arguments!'
@@ -330,4 +312,5 @@ class Program:
 if __name__ == '__main__':
     program = Program()
     program.main_loop()
+
 
