@@ -7,11 +7,11 @@ from crypt_engine.crypto_algorithms import encryptAlgs, EncryptAlgProgramId_to_N
 from cards.cards_types_list import listTypeCards, TypeCardsProgramId_to_Name
 
 
-VERSION_SOFTWARE = 1
+VERSION_MARKUP = 1
 
 
 class CardMarkup:
-    version_software = VERSION_SOFTWARE
+    version_markup = VERSION_MARKUP
 
     class FieldStructure:
         max_size = 100
@@ -19,8 +19,8 @@ class CardMarkup:
 
         def __init__(self):
             self.card_type: typing.Optional[str] = None
-            self.card_name: typing.Optional[str] = None
-            self.version_software: typing.Optional[str] = None
+            self.contact_data: typing.Optional[str] = None
+            self.version_markup: typing.Optional[str] = None
             self.enc_alg: typing.Optional[str] = None
             self.count_words_seed: typing.Optional[int] = None
             self.encrypted_seed: typing.Optional[bytes] = None
@@ -28,16 +28,17 @@ class CardMarkup:
 
 
     @classmethod
-    def info_pack_bytes(cls, info: FieldStructure()) -> bytes:
-        data = listTypeCards[info.card_type].program_id +\
-               cls._card_name_to_bytes(info.card_name) +\
-               cls.version_software.to_bytes(2, 'big') +\
-               b'\x00' * 5
+    def info_pack_bytes(cls, info: FieldStructure) -> bytes:
+        data = listTypeCards[info.card_type].program_id + \
+               cls._card_name_to_bytes(info.contact_data) + \
+               cls.version_markup.to_bytes(2, 'big')
         data += sha256(data).digest()[:4]
         data += encryptAlgs[info.enc_alg].program_id
-        data += info.count_words_seed.to
+        data += info.count_words_seed.to_bytes(1, 'big')
         data += info.encrypted_seed
-        data += info.to_bytes(1, 'big')
+        if info.iv is None:
+            info.iv = b''
+        data += info.iv
         data += sha256(data).digest()[:4]
         return data
 
@@ -47,12 +48,10 @@ class CardMarkup:
             raise cls.NotEnoughInformation()
         if sha256(bytes_[:25]).digest()[:4] != bytes_[25:29]:
             raise cls.CardIsNotMarkup()
-        if b"\x00" * 5 != bytes_[20:25]:
-            raise cls.CardIsNotMarkup()
         data = cls.FieldStructure()
         data.card_type = TypeCardsProgramId_to_Name[bytes_[:2]]
-        data.card_name = cls._bytes_to_card_name(bytes_[2:18])
-        data.version_software = '.'.join(list(bytes_[18:20]))
+        data.contact_data = cls._bytes_to_card_name(bytes_[2:23])
+        data.version_markup = '.'.join([str(int_) for int_ in bytes_[23:25]])
 
         try:
             enc_alg_name = EncryptAlgProgramId_to_Name[bytes_[29:31]]
@@ -70,22 +69,24 @@ class CardMarkup:
                 data.iv = None
             else:
                 data.iv = bytes_[32+size_enc_seed:32+size_enc_seed+size_iv]
-
+            return data
         except:
             raise cls.DataIsCorrupted(data)
 
     @classmethod
-    def print_info(cls, info: FieldStructure):
-        data = {a: info.__dict__[a] for a in dir(info) if not a.startswith('__') and
-                not callable(getattr(info, a)) and
-                info.__dict__[a] is not None}
-        print(data)
+    def print_metadata(cls, info: FieldStructure):
+        if info.card_type:
+            print('Card type:', info.card_type)
+        if info.contact_data:
+            print('Contact data:', info.contact_data)
+        if info.version_markup:
+            print('Version software:', info.version_markup)
 
     @classmethod
     def _card_name_to_bytes(cls, card_name: str):
         card_name_b = card_name.encode('utf8')
-        assert 0 < len(card_name_b) <= 15
-        return b'\x80'.join([card_name.encode('utf8'), b'\x00' * (15 - len(card_name_b))])
+        assert 0 <= len(card_name_b) <= 20
+        return b'\x80'.join([card_name.encode('utf8'), b'\x00' * (20 - len(card_name_b))])
 
     @classmethod
     def _bytes_to_card_name(cls, bytes_: bytes):

@@ -9,6 +9,7 @@ from cards.card_manager import CardManager
 from cards.cards_types_list import get_card_types, NoCardTypes
 from cards.card_markup import CardMarkup
 from crypt_engine.crypto_algorithms import get_encrypt_algorithms, NoEncryptAlgorithms
+from crypt_engine.engine import Cipher, calculate_key
 
 
 class Program:
@@ -169,39 +170,49 @@ class Program:
         except (CardManager.NoSuchCardTypes, CardManager.FailureCommand) as err:
             raise Program.Error(err.msg)
 
-    def verify_pin(self, pin: str):
-        raise Program.Pin_request
+    def verify_pin(self, pin: typing.Optional[str] = None):
+        if not pin:
+            raise Program.Pin_request
+        from smartcard.util import toBytes
+        CardManager.verify_pin(bytes(toBytes(pin)))
+        print('Pin is verify!')
 
-    def read_card_data(self) -> CardMarkup.FieldStructure:
+    def read_card_data(self, password: str = None) -> CardMarkup.FieldStructure | str:
         try:
             data = CardManager.read_bytes(0, CardMarkup.FieldStructure.max_size)
-            print(list(data)) #
         except CardManager.PinIsNotVerify:
             raise Program.Pin_request
 
         try:
             info = CardMarkup.info_bytes_unpack(data)
-            CardMarkup.print_info(info)
+            if password:
+                seed_phrase = bip39.encode_bytes(Cipher(info.enc_alg, calculate_key(password, info.enc_alg), info.iv).decrypt(info.encrypted_seed, bip39.get_entropy_bits(info.count_words_seed) // 8))
+                print('Seed phrase:', seed_phrase)
+                return seed_phrase
+            CardMarkup.print_metadata(info)
             return info
 
         except (CardMarkup.CardIsNotMarkup, CardMarkup.DataIsCorrupted) as err:
             raise err
 
-    def write_card_data(self, card_name: str):
-        pass
+    def write_seed_phrase_to_card(self, seed_phrase: str,
+                                  enc_alg: str,
+                                  password: str,
+                                  contact_data: str = '') -> None:
+        self.check_phrase(seed_phrase)
+        data = CardMarkup.FieldStructure()
+        cipher = Cipher(enc_alg, calculate_key(password, enc_alg))
 
-    # def write_card_data(self, offset: int, *args):
-    #     try:
-    #         CardManager.write_bytes(offset, bytes(list(args)))
-    #     except CardManager.PinIsNotVerify:
-    #         raise Program.Pin_request
+        data.card_type = CardManager.card_info.name
+        data.contact_data = contact_data
+        data.version_markup = CardMarkup.version_markup
+        data.enc_alg = enc_alg
+        data.count_words_seed = len(seed_phrase.split(' '))
+        data.encrypted_seed = cipher.encrypt(bip39.decode_phrase(seed_phrase))
+        data.iv = cipher.iv
 
-        # data = CardMarkup.FieldStructure()
-        # CardManager.read_bytes(0, )
-        # pass
-
-    def check_card_type(self):
-        pass
+        data_b = CardMarkup.info_pack_bytes(data)
+        CardManager.write_bytes(0, data_b)
 
     def __parse_input(self, input_: str) -> typing.Tuple[str, typing.List[str]]:
         start_end = {'"': '"', "'": "'", '(': ')', '[': ']', '{': '}'}
@@ -269,7 +280,7 @@ class Program:
 
             except CardMarkup.DataIsCorrupted as err:
                 print(err.msg)
-                CardMarkup.print_info(err.data)
+                CardMarkup.print_metadata(err.data)
 
             except CardMarkup.CardIsNotMarkup as err:
                 print(Program.Error(err.msg))
@@ -310,7 +321,51 @@ class Program:
 
 
 if __name__ == '__main__':
+    # program = Program()
+    # program.main_loop()
+
+
+
+    # sf = 'retreat reunion turn risk mutual coffee vapor swap library opinion police couple reunion staff dignity'
+    # ea = "3DES_OFB"
+    # pwd = 'test'
+    #
+    # program.set_current_reader('ACS ACR39U ICC Reader 0')
+    # program.set_card_type('sle4442')
+    # program.verify_pin('FFFFFF')
+    # program.write_seed_phrase_to_card(sf, ea, pwd)
+    # program.read_card_data('test')
+
+    from crypt_engine.crypto_algorithms import get_encrypt_algorithms
+    from time import sleep
     program = Program()
-    program.main_loop()
+    program.set_current_reader('ACS ACR39U ICC Reader 0')
+    program.set_card_type('sle4442')
+    program.verify_pin('FFFFFF')
+    pwd = 'TEST'
+    contact_data = '+79048506432'
 
+    seed_phrases = ['endless similar ahead slogan aerobic iron track priority fame kiss clever furnace',
+                    'retreat reunion turn risk mutual coffee vapor swap library opinion police couple reunion staff dignity',
+                    'siege parade soup congress fiscal boat tree vicious oval sick bike traffic gossip faculty increase provide blast economy',
+                    'ice wasp that rude history sadness rich increase dragon flip scare lyrics own shadow parent cheese enact trumpet good wasp best',
+                    'potato mobile lake oak umbrella deputy long venture jump sort one shift kiwi ill bone away old enhance number rich orphan math motor net'
+                    ]
 
+    try:
+        for seed_phrase in seed_phrases:
+            for enc_alg in get_encrypt_algorithms():
+                program.write_seed_phrase_to_card(seed_phrase, enc_alg, pwd, contact_data)
+                sleep(0.01)
+                # field_structure = program.read_card_data()
+                # assert field_structure.enc_alg == enc_alg
+                # assert field_structure.contact_data == contact_data
+                # for i in range(2):
+                #     read_sead_phrase = program.read_card_data(pwd+str(i))
+                #     assert read_sead_phrase != seed_phrase
+
+    except:
+        print(seed_phrase, enc_alg)
+        raise
+    finally:
+        program.disconnect_from_card()
