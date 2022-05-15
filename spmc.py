@@ -313,11 +313,6 @@ class Program:
         assert False
 
 
-
-
-
-
-
 if __name__ == '__main__':
     try:
         program = Program()
