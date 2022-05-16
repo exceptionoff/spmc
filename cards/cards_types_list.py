@@ -6,9 +6,9 @@ from collections import namedtuple
 
 TypeCardsHeader = namedtuple('TypeCards', 'typename program_id')
 
-listTypeCards = [TypeCardsHeader(typename='sle4442', program_id=bytes([0x00, 0x01]))]
+listTypeCards = {'sle4442': TypeCardsHeader(typename='sle4442', program_id=bytes([0x00, 0x01]))}
 
-TypeCardsProgramId_to_Name = {typeCard.program_id: typeCard.typename for typeCard in listTypeCards}
+TypeCardsProgramId_to_Name = {typeCard.program_id: typeCard.typename for typeCard in listTypeCards.values()}
 
 
 class NoCardTypes(Exception):
@@ -18,7 +18,7 @@ class NoCardTypes(Exception):
 
 
 def get_card_types():
-    card_t_in_file = set([typeCards.typename for typeCards in listTypeCards])
+    card_t_in_file = set([typeCards.typename for typeCards in listTypeCards.values()])
     card_t_in_dir = set(map(lambda x: x.removesuffix('.py'),
                             list(set(os.listdir('cards')) - {'card.py',
                                                              'card_manager.py',
