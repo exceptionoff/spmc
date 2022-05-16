@@ -9,8 +9,8 @@ from cards.card import Apdu_command, ApduInterface, CardInfo
 
 
 class CardManager(CardReaderManager):
-    """A class for working with different types of maps, providing a single interface.
-    """
+    """A class for working with different types of maps, providing a single interface."""
+
     _card_apdu_interface: typing.Optional[ApduInterface] = None
     _card_info: typing.Optional[CardInfo] = None
     _pin_is_verify: typing.Optional[bool] = None
@@ -50,7 +50,7 @@ class CardManager(CardReaderManager):
         if not (typename in cls.card_type_list()):
             raise CardManager.NoSuchCardTypes()
         try:
-            module = importlib.import_module('cards.' + typename)
+            module = importlib.import_module("cards." + typename)
             cls._card_apdu_interface = module.apdu
             cls._card_info = module.card_info
         except ModuleNotFoundError:
@@ -67,7 +67,9 @@ class CardManager(CardReaderManager):
         cls._pin_is_verify = None
 
     @classmethod
-    def execute_commands(cls, commands: typing.List[Apdu_command]) -> typing.Tuple[Apdu_command, Apdu_command]:
+    def execute_commands(
+        cls, commands: typing.List[Apdu_command]
+    ) -> typing.Tuple[Apdu_command, Apdu_command]:
         if not CardManager.connection_is_active:
             CardManager.connect()
         sw_list = []
@@ -80,16 +82,20 @@ class CardManager(CardReaderManager):
 
     @classmethod
     def select_card_type(cls) -> None:
-        sw_list, data_list = cls.execute_commands(cls._card_apdu_interface.select_card_type())
+        sw_list, data_list = cls.execute_commands(
+            cls._card_apdu_interface.select_card_type()
+        )
         for sw in sw_list:
-            if sw != cls._card_info.sw_success['select_card_type']:
+            if sw != cls._card_info.sw_success["select_card_type"]:
                 raise cls.FailureCommand()
 
     @classmethod
     def verify_pin(cls, pin: bytes) -> None:
-        sw_list, data_list = cls.execute_commands(cls._card_apdu_interface.verify_pin(pin))
+        sw_list, data_list = cls.execute_commands(
+            cls._card_apdu_interface.verify_pin(pin)
+        )
         for sw in sw_list:
-            if sw != cls._card_info.sw_success['verify_pin']:
+            if sw != cls._card_info.sw_success["verify_pin"]:
                 raise cls.FailureCommand()
         cls._pin_is_verify = True
 
@@ -97,18 +103,22 @@ class CardManager(CardReaderManager):
     def change_pin(cls, pin: bytes) -> None:
         if not CardManager.pin_is_verify:
             raise CardManager.PinIsNotVerify()
-        sw_list, data_list = cls.execute_commands(cls._card_apdu_interface.change_pin(pin))
+        sw_list, data_list = cls.execute_commands(
+            cls._card_apdu_interface.change_pin(pin)
+        )
         for sw in sw_list:
-            if sw != cls._card_info.sw_success['change_pin']:
+            if sw != cls._card_info.sw_success["change_pin"]:
                 raise cls.FailureCommand()
 
     @classmethod
     def read_bytes(cls, offset_b: int, size_b: int) -> bytes:
         if not CardManager.pin_is_verify and CardManager._card_info.read_need_pin:
             raise CardManager.PinIsNotVerify()
-        sw_list, data_list = cls.execute_commands(cls._card_apdu_interface.read(offset_b, size_b))
+        sw_list, data_list = cls.execute_commands(
+            cls._card_apdu_interface.read(offset_b, size_b)
+        )
         for sw in sw_list:
-            if sw != cls._card_info.sw_success['read']:
+            if sw != cls._card_info.sw_success["read"]:
                 raise cls.FailureCommand()
         data = []
         for data_ in data_list:
@@ -119,18 +129,35 @@ class CardManager(CardReaderManager):
     def write_bytes(cls, offset_b: int, data: bytes) -> None:
         if not CardManager.pin_is_verify and CardManager._card_info.write_need_pin:
             raise CardManager.PinIsNotVerify()
-        sw_list, data_list = cls.execute_commands(cls._card_apdu_interface.write(offset_b, data))
+        sw_list, data_list = cls.execute_commands(
+            cls._card_apdu_interface.write(offset_b, data)
+        )
         for sw in sw_list:
-            if sw != cls._card_info.sw_success['write']:
+            if sw != cls._card_info.sw_success["write"]:
                 raise cls.FailureCommand()
 
         if cls.read_bytes(offset_b, len(data)) != data:
             raise cls.FailureCommand()
 
+    @classmethod
+    def clear(cls, clear_byte: bytes = b"\xff"):
+        cls.write_bytes(0, clear_byte * cls._card_info.size)
+
+    @classmethod
+    def check_clear(cls, clear_byte: bytes = b"\xff"):
+        data = cls.read_bytes(0, cls._card_info.size)
+        if data != clear_byte * cls._card_info.size:
+            raise cls.CardNoClean()
+
     class NoSuchCardTypes(Exception):
         def __init__(self):
             super().__init__()
             self.msg = "No such card type!"
+
+    class CardNoClean(Exception):
+        def __init__(self):
+            super().__init__()
+            self.msg = "The card is not clean!"
 
     class NoCardTypes(Exception):
         def __init__(self):
