@@ -2,19 +2,17 @@
 # This file contains the cryptographic primitives
 # necessary for the program to encrypt.
 import typing
-from hashlib import sha512
 
 from Crypto.Random import get_random_bytes
 from pygost.gost3413 import pad1
 
-from crypt_engine.crypto_algorithms import EncryptAlgHeader, encryptAlgs
+from crypt_engine.crypto_algorithms import EncryptAlgHeader
 
 
 class Cipher:
     """This class representing encryption/decryption capabilities on selected algorithms.
     """
-    def __init__(self, enc_alg_name: str, key: bytes, iv: typing.Optional[bytes] = None):
-        enc_alg = encryptAlgs[enc_alg_name]
+    def __init__(self, enc_alg: EncryptAlgHeader, key: bytes, iv: typing.Optional[bytes] = None):
         if len(key) != enc_alg.key_len:
             raise Cipher.WrongKeyLength(len(key), enc_alg.key_len)
         if iv:
@@ -178,10 +176,3 @@ class Cipher:
         def __init__(self, actual_value: int, excepted_value: int):
             super().__init__()
             self.msg = f"The initialization vector length must be {excepted_value} bytes (actual {actual_value})"
-
-def calculate_key(password: str, enc_alg_name) -> bytes:
-    key = password.encode('utf8')
-    key_len = encryptAlgs[enc_alg_name].key_len
-    for i in range(2 ** 20):
-        key = sha512(key).digest()
-    return key[:key_len]
