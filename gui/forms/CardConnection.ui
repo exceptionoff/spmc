@@ -6,26 +6,45 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>633</width>
-    <height>383</height>
+    <width>330</width>
+    <height>150</height>
    </rect>
   </property>
-  <property name="font">
-   <font>
-    <family>Segoe UI Symbol</family>
-    <pointsize>10</pointsize>
-   </font>
-  </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>SPMC</string>
   </property>
-  <widget class="QComboBox" name="comboBoxReadersList">
+  <widget class="QPushButton" name="updateButton">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>220</x>
+     <y>20</y>
+     <width>91</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Update cardreaders list</string>
+   </property>
+   <property name="text">
+    <string>update</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>22</width>
+     <height>22</height>
+    </size>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="readersList">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
      <y>20</y>
      <width>200</width>
-     <height>25</height>
+     <height>28</height>
     </rect>
    </property>
    <property name="statusTip">
@@ -43,59 +62,190 @@
     </property>
    </item>
   </widget>
-  <widget class="QPushButton" name="pushButtonUpdate">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>20</y>
-     <width>25</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>resources/icon/Update.png</normaloff>resources/icon/Update.png</iconset>
-   </property>
-   <property name="iconSize">
-    <size>
-     <width>22</width>
-     <height>22</height>
-    </size>
-   </property>
-   <property name="flat">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButtonConnect">
+  <widget class="QComboBox" name="cardTypesList">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="geometry">
     <rect>
-     <x>250</x>
-     <y>20</y>
-     <width>25</width>
-     <height>25</height>
+     <x>10</x>
+     <y>60</y>
+     <width>200</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="statusTip">
+    <string/>
+   </property>
+   <property name="currentText">
+    <string>   &lt;Select card type&gt;</string>
+   </property>
+   <property name="duplicatesEnabled">
+    <bool>false</bool>
+   </property>
+   <item>
+    <property name="text">
+     <string>   &lt;Select card type&gt;</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>110</y>
+     <width>194</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QPushButton" name="cancelButton">
+      <property name="text">
+       <string>cancel</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="nextButton">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>next</string>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="default">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QPushButton" name="exitButton">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>110</y>
+     <width>93</width>
+     <height>28</height>
     </rect>
    </property>
    <property name="text">
-    <string/>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>resources/icon/Connect.png</normaloff>resources/icon/Connect.png</iconset>
-   </property>
-   <property name="iconSize">
-    <size>
-     <width>22</width>
-     <height>22</height>
-    </size>
+    <string>exit</string>
    </property>
   </widget>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>cancelButton</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>cancelButtonPressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>76</x>
+     <y>120</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>87</x>
+     <y>100</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>nextButton</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>nextButtonPressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>172</x>
+     <y>126</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>173</x>
+     <y>146</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>exitButton</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>exitButtonPressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>302</x>
+     <y>124</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>321</x>
+     <y>107</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>updateButton</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>updateButtonPressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>307</x>
+     <y>40</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>306</x>
+     <y>73</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>readersList</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>Form</receiver>
+   <slot>readersListIndexChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>135</x>
+     <y>37</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>152</x>
+     <y>12</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cardTypesList</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>Form</receiver>
+   <slot>cardTypesListIndexChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>36</x>
+     <y>72</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>22</x>
+     <y>94</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>cancelButtonPressed()</slot>
+  <slot>nextButtonPressed()</slot>
+  <slot>exitButtonPressed()</slot>
+  <slot>updateButtonPressed()</slot>
+  <slot>readersListIndexChanged(int)</slot>
+  <slot>cardTypesListIndexChanged(int)</slot>
+ </slots>
 </ui>

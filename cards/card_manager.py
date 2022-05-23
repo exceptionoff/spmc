@@ -46,15 +46,21 @@ class CardManager(CardReaderManager):
         return lst
 
     @classmethod
-    def set_card_type(cls, typename: str) -> None:
-        if not (typename in cls.card_type_list()):
-            raise CardManager.NoSuchCardTypes()
-        try:
-            module = importlib.import_module("cards." + typename)
-            cls._card_apdu_interface = module.apdu
-            cls._card_info = module.card_info
-        except ModuleNotFoundError:
-            raise CardManager.NoSuchCardTypes()
+    def set_card_type(cls, typename: typing.Optional[str]) -> None:
+        if typename:
+            if not (typename in cls.card_type_list()):
+                raise CardManager.NoSuchCardTypes()
+            try:
+                module = importlib.import_module("cards." + typename)
+                cls._card_apdu_interface = module.apdu
+                cls._card_info = module.card_info
+            except ModuleNotFoundError:
+                raise CardManager.NoSuchCardTypes()
+        else:
+            cls._card_apdu_interface = None
+            cls._card_info = None
+            cls._pin_is_verify = None
+            cls.disconnect()
 
     @classmethod
     def connect(cls) -> None:

@@ -23,21 +23,22 @@ class NoCardTypes(Exception):
 
 def get_card_types():
     card_t_in_file = set([typeCards.typename for typeCards in listTypeCards.values()])
-    card_t_in_dir = set(
-        map(
-            lambda x: x.removesuffix(".py"),
-            list(
-                set(os.listdir("cards"))
-                - {
-                    "card.py",
-                    "card_manager.py",
-                    "card_markup.py",
-                    "cardreader_manager.py",
-                    "cards_types_list.py",
-                    "__pycache__",
-                }
-            ),
-        )
-    )
-
-    return list(set.intersection(card_t_in_file, card_t_in_dir))
+    # card_t_in_dir = set(
+    #     map(
+    #         lambda x: x.removesuffix(".py"),
+    #         list(
+    #             set(os.listdir("cards"))
+    #             - {
+    #                 "card.py",
+    #                 "card_manager.py",
+    #                 "card_markup.py",
+    #                 "cardreader_manager.py",
+    #                 "cards_types_list.py",
+    #                 "__pycache__",
+    #             }
+    #         ),
+    #     )
+    # )
+    #
+    # return list(set.intersection(card_t_in_file, card_t_in_dir))
+    return list(card_t_in_file)

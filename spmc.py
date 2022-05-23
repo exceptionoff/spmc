@@ -92,9 +92,10 @@ class Program:
                 info += ")"
             return f"Enter {self.name} {info}: "
 
-        def get_value(self):
+        def get_value(self, value: typing.Optional[str] = None):
             print(self, end="")
-            value = input()
+            if value is None:
+                value = input()
             exec(self.action.format(value))
 
     Pin_request = Input(
@@ -129,7 +130,9 @@ class Program:
         print(card_readers)
         return card_readers
 
-    def set_current_reader(self, reader: str):
+    def set_current_reader(self, reader: typing.Optional[str]):
+        if not reader:
+            self.disconnect_from_card()
         try:
             CardManager.set_current_reader(reader)
             print(f"Selected card reader: {CardManager.current_reader}")
@@ -155,22 +158,34 @@ class Program:
             raise Program.Error(err.msg)
 
     def card_type_list(self) -> list:
-        card_type_list = CardManager.card_type_list()
-        if not card_type_list:
+        try:
+            card_type_list = CardManager.card_type_list()
+            print(card_type_list)
+            return card_type_list
+        except CardManager.NoCardTypes:
             raise Program.Critical(
                 "The application does not have supported card types!\n"
                 '(Please look in the "cards\constants.py" file and compare '
                 'it with the contents of the "cards" directory)'
             )
-        print(card_type_list)
-        return card_type_list
 
-    def set_card_type(self, typename: str):
+    def set_card_type(self, typename: typing.Optional[str]):
         try:
             CardManager.set_card_type(typename)
-            print(f"Selected card type: {CardManager._card_info.name}")
-            CardManager.select_card_type()
+            if typename:
+                print(f"Selected card type: {CardManager._card_info.name}")
+                CardManager.select_card_type()
+            else:
+                print(f"Unselected card type!")
         except (CardManager.NoSuchCardTypes, CardManager.FailureCommand) as err:
+            raise Program.Error(err.msg)
+
+    def algorithms_list(self):
+        try:
+            algorithms_list = get_encrypt_algorithms()
+            print(algorithms_list)
+            return algorithms_list
+        except NoEncryptAlgorithms as err:
             raise Program.Error(err.msg)
 
     def verify_pin(self, pin: typing.Optional[str] = None):
@@ -189,7 +204,7 @@ class Program:
 
         try:
             info = CardMarkup.info_bytes_unpack(data)
-            if password:
+            if not (password is None):
                 seed_phrase = bip39.encode_bytes(
                     Cipher(
                         info.enc_alg, calculate_key(password, info.enc_alg), info.iv
@@ -222,7 +237,10 @@ class Program:
         data.iv = cipher.iv
 
         data_b = CardMarkup.info_pack_bytes(data)
-        CardManager.write_bytes(0, data_b)
+        try:
+            CardManager.write_bytes(0, data_b)
+        except CardManager.PinIsNotVerify:
+            raise Program.Pin_request
 
     def __parse_input(self, input_: str) -> typing.Tuple[str, typing.List[str]]:
         start_end = {'"': '"', "'": "'", "(": ")", "[": "]", "{": "}"}

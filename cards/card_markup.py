@@ -93,6 +93,8 @@ class CardMarkup:
             print("Contact data:", info.contact_data)
         if info.version_markup:
             print("Version software:", info.version_markup)
+        if info.enc_alg:
+            print("Encrypt algorithm:", info.enc_alg)
 
     @classmethod
     def _card_name_to_bytes(cls, card_name: str):

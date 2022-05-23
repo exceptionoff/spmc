@@ -27,7 +27,7 @@ def test_spmc(seed_phrase):
     program = Program()
     program.set_current_reader(test_card_reader_name)
     program.set_card_type(test_card_type_name)
-    program.verify_pin(test_card_pin)
+    program.verify_pin("FFFFFF")
 
     enc_alg = random.choice(get_encrypt_algorithms())
     password = random.choice(test_passwords)
