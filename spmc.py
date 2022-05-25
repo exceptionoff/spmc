@@ -2,17 +2,17 @@
 # The file containing the program
 
 import sys
-import argparse
-import typing
+from typing import Optional, List, Dict, Tuple
 import bip39
+from smartcard.util import toBytes
 from cards.card_manager import CardManager
-from cards.cards_types_list import get_card_types, NoCardTypes
 from cards.card_markup import CardMarkup
-from crypt_engine.crypto_algorithms import get_encrypt_algorithms, NoEncryptAlgorithms
+from crypt_engine.crypto_algorithms import get_encrypt_algorithms
 from crypt_engine.engine import Cipher, calculate_key
 
 
 class Program:
+
     class Critical(Exception):
         def __init__(self, msg):
             self.msg = msg
@@ -47,7 +47,7 @@ class Program:
             return f"Warning: {self.msg}"
 
     class Dialog(Exception):
-        def __init__(self, msg: str, choices: typing.Dict[str, str]):
+        def __init__(self, msg: str, choices: Dict[str, str]):
             self.msg = msg
             self.choices = choices
             super().__init__(msg)
@@ -92,7 +92,7 @@ class Program:
                 info += ")"
             return f"Enter {self.name} {info}: "
 
-        def get_value(self, value: typing.Optional[str] = None):
+        def get_value(self, value: Optional[str] = None):
             print(self, end="")
             if value is None:
                 value = input()
@@ -106,7 +106,8 @@ class Program:
         example="FFFFFF",
     )
 
-    def exit(self, code: typing.Optional[int] = None) -> None:
+    @staticmethod
+    def exit(code: Optional[int] = None) -> None:
         if code is None:
             sys.exit(0)
         raise Program.Dialog(
@@ -114,93 +115,95 @@ class Program:
             {"yes": f"sys.exit({code})", "no": "pass"},
         )
 
-    def check_phrase(self, phrase: str) -> None:
-        if bip39.check_phrase(phrase):
-            print("Phrase is valid")
-        else:
-            raise Program.Error("Phrase is not valid!")
-
-    def cardreaders_list(self) -> typing.List[str]:
+    @staticmethod
+    def card_readers() -> List[str]:
         card_readers = CardManager.readers_list()
         if not card_readers:
             raise Program.Warning(
                 "No card readers found!\n"
                 "(Please connect a card reader to your device)"
             )
-        print(card_readers)
+        for card_reader in card_readers:
+            print(f'"{card_reader}"')
         return card_readers
 
-    def set_current_reader(self, reader: typing.Optional[str]):
-        if not reader:
-            self.disconnect_from_card()
+    @staticmethod
+    def card_types() -> List[str]:
+        card_types = CardManager.card_types_list()
+        if not card_types:
+            raise Program.Critical(
+                r"The application does not have supported card types!\n"
+                r'(Please look in the "cards\constants.py" file and compare '
+                r'it with the contents of the "cards" directory)'
+            )
+        for card_type in card_types:
+            print(f'"{card_type}"')
+        return card_types
+
+    @staticmethod
+    def supported_algorithms() -> List[str]:
+        supported_algorithms = get_encrypt_algorithms()
+        if not supported_algorithms:
+            raise Program.Critical("The application does not have supported encrypt algorithms!")
+        for supported_algorithm in supported_algorithms:
+            print(f'"{supported_algorithm}"')
+        return supported_algorithms
+
+    @staticmethod
+    def select_card_reader(reader: Optional[str]) -> None:
         try:
             CardManager.set_current_reader(reader)
-            print(f"Selected card reader: {CardManager.current_reader}")
+            print(f"Selected card reader: {CardManager.current_reader}!")
         except (
-            CardManager.ConnectionIsActive,
-            CardManager.NoCardReaders,
-            CardManager.IncorrectReaderName,
+                CardManager.ConnectionIsActive,
+                CardManager.NoCardReaders,
+                CardManager.IncorrectReaderName,
         ) as err:
             raise Program.Error(err.msg)
 
-    def connect_to_card(self):
+    @staticmethod
+    def select_card_type(typename: Optional[str]) -> None:
+        try:
+            CardManager.set_card_type(typename)
+            print(f"Selected card type: {CardManager.card_info.name}")
+        except (CardManager.NoSuchCardTypes, CardManager.FailureCommand) as err:
+            raise Program.Error(err.msg)
+
+    @staticmethod
+    def connect_to_card() -> None:
         try:
             CardManager.connect()
+            CardManager.select_card_type()
             print("Card connected!")
         except (CardManager.NoSelectCardReader, CardManager.CardBackendError) as err:
             raise Program.Error(err.msg)
 
-    def disconnect_from_card(self):
+    @staticmethod
+    def disconnect_from_card() -> None:
         try:
             CardManager.disconnect()
             print("Card disconnected!")
         except CardManager.CardBackendError as err:
             raise Program.Error(err.msg)
 
-    def card_type_list(self) -> list:
-        try:
-            card_type_list = CardManager.card_type_list()
-            print(card_type_list)
-            return card_type_list
-        except CardManager.NoCardTypes:
-            raise Program.Critical(
-                "The application does not have supported card types!\n"
-                '(Please look in the "cards\constants.py" file and compare '
-                'it with the contents of the "cards" directory)'
-            )
-
-    def set_card_type(self, typename: typing.Optional[str]):
-        try:
-            CardManager.set_card_type(typename)
-            if typename:
-                print(f"Selected card type: {CardManager._card_info.name}")
-                CardManager.select_card_type()
-            else:
-                print(f"Unselected card type!")
-        except (CardManager.NoSuchCardTypes, CardManager.FailureCommand) as err:
-            raise Program.Error(err.msg)
-
-    def algorithms_list(self):
-        try:
-            algorithms_list = get_encrypt_algorithms()
-            print(algorithms_list)
-            return algorithms_list
-        except NoEncryptAlgorithms as err:
-            raise Program.Error(err.msg)
-
-    def verify_pin(self, pin: typing.Optional[str] = None):
+    @staticmethod
+    def verify_pin(pin: Optional[str] = None) -> None:
         if not pin:
             raise Program.Pin_request
-        from smartcard.util import toBytes
+        try:
+            CardManager.verify_pin(bytes(toBytes(pin)))
+            print("Pin is verify!")
+        except CardManager.WrongPin as err:
+            raise Program.Error(err.msg)
 
-        CardManager.verify_pin(bytes(toBytes(pin)))
-        print("Pin is verify!")
-
-    def read_card_data(self, password: str = None) -> CardMarkup.FieldStructure | str:
+    @staticmethod
+    def read_seed_phrase(password: Optional[str] = None) -> CardMarkup.FieldStructure | str:
         try:
             data = CardManager.read_bytes(0, CardMarkup.FieldStructure.max_size)
         except CardManager.PinIsNotVerify:
             raise Program.Pin_request
+        except CardManager.ReadError as err:
+            raise Program.Error(err.msg)
 
         try:
             info = CardMarkup.info_bytes_unpack(data)
@@ -215,16 +218,22 @@ class Program:
                 )
                 print("Seed phrase:", seed_phrase)
                 return seed_phrase
+            print('Please pass the decryption password.\n'
+                  'Data available without a password:')
             CardMarkup.print_metadata(info)
             return info
 
-        except (CardMarkup.CardIsNotMarkup, CardMarkup.DataIsCorrupted) as err:
-            raise err
+        except CardMarkup.CardIsNotMarkup as err:
+            raise Program.Error(err.msg)
+        except CardMarkup.DataIsCorrupted as err:
+            CardMarkup.print_metadata(err.data)
+            raise Program.Error(err.msg)
 
-    def write_seed_phrase_to_card(
-        self, seed_phrase: str, enc_alg: str, password: str, contact_data: str = ""
+    @staticmethod
+    def write_seed_phrase(
+            seed_phrase: str, enc_alg: str, password: str, contact_data: str = ""
     ) -> None:
-        self.check_phrase(seed_phrase)
+        Program.check_seed_phrase(seed_phrase)
         data = CardMarkup.FieldStructure()
         cipher = Cipher(enc_alg, calculate_key(password, enc_alg))
 
@@ -242,7 +251,73 @@ class Program:
         except CardManager.PinIsNotVerify:
             raise Program.Pin_request
 
-    def __parse_input(self, input_: str) -> typing.Tuple[str, typing.List[str]]:
+    @staticmethod
+    def check_card_readers():
+        if not CardManager.readers_list():
+            raise Program.Warning("No card readers found!\n"
+                                  "(Please connect a card reader to your device)")
+
+    @staticmethod
+    def check_card_types():
+        if not CardManager.card_types_list():
+            raise Program.Critical("No supported card types!")
+
+    @staticmethod
+    def check_supported_algorithms():
+        if not get_encrypt_algorithms():
+            raise Program.Critical("No supported encrypt algorithms!")
+
+    @staticmethod
+    def check_seed_phrase(phrase: str) -> None:
+        if bip39.check_phrase(phrase):
+            print("Phrase is valid")
+        else:
+            raise Program.Error("Phrase is not valid!")
+
+    @staticmethod
+    def main_loop():
+        try:
+            Program.check_supported_algorithms()
+            Program.check_card_types()
+            Program.check_card_readers()
+        except Program.Warning as err:
+            print(err)
+        except Program.Critical as err:
+            print(err)
+            sys.exit(1)
+
+        while True:
+            try:
+                Program._input_command()
+
+            except Program.Dialog as dialog:
+                dialog.get_answer()
+
+            except Program.Input as _input:
+                _input.get_value()
+
+            except (Program.Warning, Program.Error) as err:
+                print(err)
+
+            except Program.Critical as err:
+                print(err)
+                sys.exit(1)
+
+    @staticmethod
+    def _input_command():
+        try:
+            u_input = input(">>> ")
+            command = "Program." + Program._input_to_command(u_input)
+            exec(command)
+        except TypeError:
+            raise Program.Warning("Invalid command arguments!")
+        except AttributeError:
+            raise Program.Warning("No such command!")
+        except (NameError, SyntaxError) as err:
+            raise Program.Warning(f"({err.args[0]})")
+
+    @staticmethod
+    def _parse_input(input_: str) -> Tuple[str, List[str]]:
         start_end = {'"': '"', "'": "'", "(": ")", "[": "]", "{": "}"}
 
         command = input_.split(" ")[0]
@@ -266,91 +341,11 @@ class Program:
 
         return command, params
 
-    def _input_to_command(self, input_: str) -> str:
-        command, params = self.__parse_input(input_)
+    @staticmethod
+    def _input_to_command(input_: str) -> str:
+        command, params = Program._parse_input(input_)
         return f'{command}({",".join(params)})'
-
-    def main_loop(self):
-        while True:
-            try:
-                u_input = input(">>> ")
-                command = "self." + self._input_to_command(u_input)
-                exec(command)
-
-            except self.Dialog as dialog:
-                dialog.get_answer()
-
-            except self.Input as _input:
-                _input.get_value()
-
-            except (self.Warning, self.Error) as err:
-                print(err.msg)
-
-            except self.Critical as err:
-                print(err.msg)
-                sys.exit(1)
-
-            except TypeError as err:
-                warning_msg = "Invalid command arguments!"
-                if self.debug_mode:
-                    warning_msg += f"\n({err.args[0]})"
-
-                print(Program.Warning(warning_msg).msg)
-
-            except AttributeError as err:
-                warning_msg = "No such command!"
-                if self.debug_mode:
-                    warning_msg += f"\n({err.args[0]})"
-                print(Program.Warning(warning_msg).msg)
-
-            except (NameError, SyntaxError) as err:
-                print(Program.Warning(f"({err.args[0]})").msg)
-
-            except CardMarkup.DataIsCorrupted as err:
-                print(err.msg)
-                CardMarkup.print_metadata(err.data)
-
-            except CardMarkup.CardIsNotMarkup as err:
-                print(Program.Error(err.msg))
-
-    def __init__(self):
-        self.program_warnings = []
-        self.debug_mode = False
-        if __name__ == "__main__":
-            self.__parse_args()
-        self._check_card_types()
-        self._check_encrypt_algorithms()
-        self._check_cardreaders()
-        for warning_msg in self.program_warnings:
-            print("Warning:", warning_msg)
-
-    def __parse_args(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("--debug_mode", type=int, choices=[0, 1])
-        args = parser.parse_args()
-        self.debug_mode = bool(args.debug_mode)
-
-    def _check_cardreaders(self):
-        if not CardManager.readers_list():
-            warning_msg = (
-                "No card readers found!\n"
-                "(Please connect a card reader to your device)"
-            )
-            self.program_warnings.append(warning_msg)
-
-    def _check_card_types(self):
-        try:
-            return get_card_types()
-        except NoCardTypes:
-            raise Program.Critical("No supported card types!")
-
-    def _check_encrypt_algorithms(self):
-        try:
-            return get_encrypt_algorithms()
-        except NoEncryptAlgorithms:
-            raise Program.Critical("No supported encrypt algorithms!")
 
 
 if __name__ == "__main__":
-    program = Program()
-    program.main_loop()
+    Program.main_loop()
