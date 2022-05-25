@@ -4,7 +4,7 @@
 import random
 import pytest
 
-from spmc import Program
+import spmc
 from crypt_engine.crypto_algorithms import get_encrypt_algorithms
 
 test_seed_phrases = [
@@ -24,28 +24,30 @@ test_card_pin = "FFFFFF"
 
 @pytest.mark.parametrize("seed_phrase", test_seed_phrases)
 def test_spmc(seed_phrase):
-    program = Program()
-    program.set_current_reader(test_card_reader_name)
-    program.set_card_type(test_card_type_name)
-    program.verify_pin("FFFFFF")
+    Program = spmc.Program
+    Program.select_card_reader(test_card_reader_name)
+    Program.select_card_type(test_card_type_name)
+    Program.connect_to_card()
+    Program.verify_pin(test_card_pin)
 
     enc_alg = random.choice(get_encrypt_algorithms())
     password = random.choice(test_passwords)
     contact_data = random.choice(test_contact_data)
 
-    program.write_seed_phrase_to_card(seed_phrase, enc_alg, password, contact_data)
-    program.disconnect_from_card()
+    Program.write_seed_phrase(seed_phrase, enc_alg, password, contact_data)
+    Program.disconnect_from_card()
 
-    program = Program()
-    program.set_current_reader(test_card_reader_name)
-    program.set_card_type(test_card_type_name)
-    program.verify_pin(test_card_pin)
 
-    data = program.read_card_data()
+    Program.select_card_reader(test_card_reader_name)
+    Program.select_card_type(test_card_type_name)
+    Program.connect_to_card()
+    Program.verify_pin(test_card_pin)
+
+    data = Program.read_seed_phrase()
     assert data.card_type == test_card_type_name
     assert data.contact_data == contact_data
     assert data.enc_alg == enc_alg
-    assert program.read_card_data(password) == seed_phrase
+    assert Program.read_seed_phrase(password) == seed_phrase
 
-    program.disconnect_from_card()
+    Program.disconnect_from_card()
 
