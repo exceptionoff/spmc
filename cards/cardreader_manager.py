@@ -73,23 +73,21 @@ class CardReaderManager:
         return lst
 
     @classmethod
-    def set_current_reader(cls, reader: Optional[str]) -> None:
+    def set_current_reader(cls, reader: str) -> None:
         """Set the current card reader from which the card will be read.
         :param reader: card reader from readers_list
         """
         if cls._connection_is_active:
             raise CardReaderManager.ConnectionIsActive(cls._current_reader)
-        if reader:
-            readers_list = cls.readers_list()
-            if not readers_list:
-                raise cls.NoCardReaders()
-            if not (reader in readers_list):
-                raise cls.IncorrectReaderName()
-            cls._current_reader = reader
-            logging.info(f"Selected card reader: {cls._current_reader}")
-        else:
-            cls._current_reader = None
-            logging.info(f"Unselected card reader")
+
+        readers_list = cls.readers_list()
+        if not readers_list:
+            raise cls.NoCardReaders()
+        if not (reader in readers_list):
+            raise cls.IncorrectReaderName()
+        cls._current_reader = reader
+        logging.info(f"Selected card reader: {cls._current_reader}")
+
 
     @classmethod
     def connect(cls) -> None:

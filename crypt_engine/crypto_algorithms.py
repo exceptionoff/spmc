@@ -154,14 +154,5 @@ EncryptAlgProgramId_to_Name = {
 }
 
 
-class NoEncryptAlgorithms(Exception):
-    def __init__(self):
-        super().__init__()
-        self.msg = "The application does not have supported encrypt algorithms!"
-
-
 def get_encrypt_algorithms():
-    encrypt_algorithms = [encrypt_alg.name for encrypt_alg in encryptAlgs.values()]
-    if not encrypt_algorithms:
-        raise NoEncryptAlgorithms()
-    return encrypt_algorithms
+    return [encrypt_alg.name for encrypt_alg in encryptAlgs.values()]

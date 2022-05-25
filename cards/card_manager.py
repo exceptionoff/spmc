@@ -39,28 +39,20 @@ class CardManager(CardReaderManager):
         return CardManager._pin_is_verify
 
     @classmethod
-    def card_type_list(cls) -> typing.List[str]:
-        lst = get_card_types()
-        if not lst:
-            raise CardManager.NoCardTypes()
-        return lst
+    def card_types_list(cls) -> typing.List[str]:
+        return get_card_types()
 
     @classmethod
-    def set_card_type(cls, typename: typing.Optional[str]) -> None:
-        if typename:
-            if not (typename in cls.card_type_list()):
-                raise CardManager.NoSuchCardTypes()
-            try:
-                module = importlib.import_module("cards." + typename)
-                cls._card_apdu_interface = module.apdu
-                cls._card_info = module.card_info
-            except ModuleNotFoundError:
-                raise CardManager.NoSuchCardTypes()
-        else:
-            cls._card_apdu_interface = None
-            cls._card_info = None
-            cls._pin_is_verify = None
-            cls.disconnect()
+    def set_card_type(cls, typename: str) -> None:
+        if not (typename in cls.card_types_list()):
+            raise CardManager.NoSuchCardTypes()
+        try:
+            module = importlib.import_module("cards." + typename)
+            cls._card_apdu_interface = module.apdu
+            cls._card_info = module.card_info
+        except ModuleNotFoundError:
+            raise CardManager.NoSuchCardTypes()
+
 
     @classmethod
     def connect(cls) -> None:
@@ -102,7 +94,7 @@ class CardManager(CardReaderManager):
         )
         for sw in sw_list:
             if sw != cls._card_info.sw_success["verify_pin"]:
-                raise cls.FailureCommand()
+                raise cls.WrongPin()
         cls._pin_is_verify = True
 
     @classmethod
@@ -120,16 +112,19 @@ class CardManager(CardReaderManager):
     def read_bytes(cls, offset_b: int, size_b: int) -> bytes:
         if not CardManager.pin_is_verify and CardManager._card_info.read_need_pin:
             raise CardManager.PinIsNotVerify()
-        sw_list, data_list = cls.execute_commands(
-            cls._card_apdu_interface.read(offset_b, size_b)
-        )
-        for sw in sw_list:
-            if sw != cls._card_info.sw_success["read"]:
-                raise cls.FailureCommand()
-        data = []
-        for data_ in data_list:
-            data += data_
-        return bytes(data)
+        try:
+            sw_list, data_list = cls.execute_commands(
+                cls._card_apdu_interface.read(offset_b, size_b)
+            )
+            for sw in sw_list:
+                if sw != cls._card_info.sw_success["read"]:
+                    raise cls.ReadError()
+            data = []
+            for data_ in data_list:
+                data += data_
+            return bytes(data)
+        except:
+            raise cls.ReadError()
 
     @classmethod
     def write_bytes(cls, offset_b: int, data: bytes) -> None:
@@ -184,3 +179,14 @@ class CardManager(CardReaderManager):
         def __init__(self):
             super().__init__()
             self.msg = "PIN code not presented!"
+
+    class WrongPin(Exception):
+        def __init__(self):
+            super().__init__()
+            self.msg = "PIN code is incorrect!"
+
+    class ReadError(Exception):
+        def __init__(self):
+            super().__init__()
+            self.msg = "Unable to read data!"
+
