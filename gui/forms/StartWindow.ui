@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>294</width>
-    <height>145</height>
+    <width>450</width>
+    <height>220</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -36,8 +36,8 @@
     <rect>
      <x>10</x>
      <y>40</y>
-     <width>271</width>
-     <height>98</height>
+     <width>431</width>
+     <height>171</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -46,7 +46,7 @@
       <property name="font">
        <font>
         <family>MS Shell Dlg 2</family>
-        <pointsize>8</pointsize>
+        <pointsize>15</pointsize>
        </font>
       </property>
       <property name="text">
@@ -59,7 +59,7 @@
       <property name="font">
        <font>
         <family>MS Shell Dlg 2</family>
-        <pointsize>8</pointsize>
+        <pointsize>15</pointsize>
        </font>
       </property>
       <property name="text">
@@ -69,6 +69,11 @@
     </item>
     <item>
      <widget class="QPushButton" name="exitButton">
+      <property name="font">
+       <font>
+        <pointsize>15</pointsize>
+       </font>
+      </property>
       <property name="text">
        <string>Exit the program</string>
       </property>
@@ -88,7 +93,7 @@
    <property name="font">
     <font>
      <family>MS Shell Dlg 2</family>
-     <pointsize>12</pointsize>
+     <pointsize>15</pointsize>
     </font>
    </property>
    <property name="text">
@@ -105,11 +110,11 @@
    <slot>writeButtonPressed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>309</x>
-     <y>86</y>
+     <x>279</x>
+     <y>56</y>
     </hint>
     <hint type="destinationlabel">
-     <x>479</x>
+     <x>293</x>
      <y>27</y>
     </hint>
    </hints>
@@ -121,12 +126,12 @@
    <slot>readButtonPressed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>262</x>
-     <y>132</y>
+     <x>232</x>
+     <y>102</y>
     </hint>
     <hint type="destinationlabel">
      <x>261</x>
-     <y>198</y>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -137,12 +142,12 @@
    <slot>exitButtonPressed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>292</x>
-     <y>153</y>
+     <x>262</x>
+     <y>123</y>
     </hint>
     <hint type="destinationlabel">
-     <x>336</x>
-     <y>150</y>
+     <x>293</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
