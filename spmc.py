@@ -12,7 +12,6 @@ from crypt_engine.engine import Cipher, calculate_key
 
 
 class Program:
-
     class Critical(Exception):
         def __init__(self, msg):
             self.msg = msg
@@ -144,7 +143,9 @@ class Program:
     def supported_algorithms() -> List[str]:
         supported_algorithms = get_encrypt_algorithms()
         if not supported_algorithms:
-            raise Program.Critical("The application does not have supported encrypt algorithms!")
+            raise Program.Critical(
+                "The application does not have supported encrypt algorithms!"
+            )
         for supported_algorithm in supported_algorithms:
             print(f'"{supported_algorithm}"')
         return supported_algorithms
@@ -155,9 +156,9 @@ class Program:
             CardManager.set_current_reader(reader)
             print(f"Selected card reader: {CardManager.current_reader}!")
         except (
-                CardManager.ConnectionIsActive,
-                CardManager.NoCardReaders,
-                CardManager.IncorrectReaderName,
+            CardManager.ConnectionIsActive,
+            CardManager.NoCardReaders,
+            CardManager.IncorrectReaderName,
         ) as err:
             raise Program.Error(err.msg)
 
@@ -197,7 +198,9 @@ class Program:
             raise Program.Error(err.msg)
 
     @staticmethod
-    def read_seed_phrase(password: Optional[str] = None) -> CardMarkup.FieldStructure | str:
+    def read_seed_phrase(
+        password: Optional[str] = None,
+    ) -> CardMarkup.FieldStructure | str:
         try:
             data = CardManager.read_bytes(0, CardMarkup.FieldStructure.max_size)
         except CardManager.PinIsNotVerify:
@@ -218,8 +221,10 @@ class Program:
                 )
                 print("Seed phrase:", seed_phrase)
                 return seed_phrase
-            print('Please pass the decryption password.\n'
-                  'Data available without a password:')
+            print(
+                "Please pass the decryption password.\n"
+                "Data available without a password:"
+            )
             CardMarkup.print_metadata(info)
             return info
 
@@ -231,7 +236,7 @@ class Program:
 
     @staticmethod
     def write_seed_phrase(
-            seed_phrase: str, enc_alg: str, password: str, contact_data: str = ""
+        seed_phrase: str, enc_alg: str, password: str, contact_data: str = ""
     ) -> None:
         Program.check_seed_phrase(seed_phrase)
         data = CardMarkup.FieldStructure()
@@ -254,8 +259,10 @@ class Program:
     @staticmethod
     def check_card_readers():
         if not CardManager.readers_list():
-            raise Program.Warning("No card readers found!\n"
-                                  "(Please connect a card reader to your device)")
+            raise Program.Warning(
+                "No card readers found!\n"
+                "(Please connect a card reader to your device)"
+            )
 
     @staticmethod
     def check_card_types():

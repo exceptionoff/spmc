@@ -37,7 +37,6 @@ def test_spmc(seed_phrase):
     Program.write_seed_phrase(seed_phrase, enc_alg, password, contact_data)
     Program.disconnect_from_card()
 
-
     Program.select_card_reader(test_card_reader_name)
     Program.select_card_type(test_card_type_name)
     Program.connect_to_card()
@@ -50,4 +49,3 @@ def test_spmc(seed_phrase):
     assert Program.read_seed_phrase(password) == seed_phrase
 
     Program.disconnect_from_card()
-

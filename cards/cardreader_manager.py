@@ -88,7 +88,6 @@ class CardReaderManager:
         cls._current_reader = reader
         logging.info(f"Selected card reader: {cls._current_reader}")
 
-
     @classmethod
     def connect(cls) -> None:
         """Connect to the card in the selected card reader."""

@@ -53,7 +53,6 @@ class CardManager(CardReaderManager):
         except ModuleNotFoundError:
             raise CardManager.NoSuchCardTypes()
 
-
     @classmethod
     def connect(cls) -> None:
         super().connect()
@@ -189,4 +188,3 @@ class CardManager(CardReaderManager):
         def __init__(self):
             super().__init__()
             self.msg = "Unable to read data!"
-
