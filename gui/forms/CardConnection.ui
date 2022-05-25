@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>330</width>
-    <height>150</height>
+    <height>178</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>20</y>
-     <width>91</width>
+     <y>30</y>
+     <width>90</width>
      <height>30</height>
     </rect>
    </property>
@@ -42,58 +42,48 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>20</y>
+     <y>30</y>
      <width>200</width>
-     <height>28</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="statusTip">
     <string/>
    </property>
    <property name="currentText">
-    <string>   &lt;Select cardreader&gt;</string>
+    <string/>
    </property>
    <property name="duplicatesEnabled">
     <bool>false</bool>
    </property>
-   <item>
-    <property name="text">
-     <string>   &lt;Select cardreader&gt;</string>
-    </property>
-   </item>
   </widget>
   <widget class="QComboBox" name="cardTypesList">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>60</y>
+     <y>90</y>
      <width>200</width>
-     <height>28</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="statusTip">
     <string/>
    </property>
    <property name="currentText">
-    <string>   &lt;Select card type&gt;</string>
+    <string/>
    </property>
    <property name="duplicatesEnabled">
     <bool>false</bool>
    </property>
-   <item>
-    <property name="text">
-     <string>   &lt;Select card type&gt;</string>
-    </property>
-   </item>
   </widget>
   <widget class="QWidget" name="horizontalLayoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>110</y>
+     <y>140</y>
      <width>194</width>
      <height>31</height>
     </rect>
@@ -131,13 +121,39 @@
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>110</y>
+     <y>140</y>
      <width>93</width>
      <height>28</height>
     </rect>
    </property>
    <property name="text">
     <string>exit</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>90</width>
+     <height>15</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Cardreader:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>70</y>
+     <width>55</width>
+     <height>15</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Cardtype:</string>
    </property>
   </widget>
  </widget>

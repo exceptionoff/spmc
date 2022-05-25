@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>340</width>
-    <height>231</height>
+    <width>335</width>
+    <height>246</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,33 +16,28 @@
   <widget class="QComboBox" name="algorithmsList">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>20</y>
-     <width>301</width>
-     <height>28</height>
+     <x>10</x>
+     <y>30</y>
+     <width>310</width>
+     <height>30</height>
     </rect>
    </property>
    <property name="statusTip">
     <string/>
    </property>
    <property name="currentText">
-    <string>   &lt;Select encryption algorithms&gt;</string>
+    <string/>
    </property>
    <property name="duplicatesEnabled">
     <bool>false</bool>
    </property>
-   <item>
-    <property name="text">
-     <string>   &lt;Select encryption algorithms&gt;</string>
-    </property>
-   </item>
   </widget>
   <widget class="QPlainTextEdit" name="contactDataTextEdit">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>60</y>
-     <width>301</width>
+     <x>10</x>
+     <y>70</y>
+     <width>310</width>
      <height>61</height>
     </rect>
    </property>
@@ -57,7 +52,7 @@
    <property name="geometry">
     <rect>
      <x>100</x>
-     <y>120</y>
+     <y>140</y>
      <width>221</width>
      <height>21</height>
     </rect>
@@ -72,10 +67,10 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>141</y>
-     <width>71</width>
-     <height>16</height>
+     <x>10</x>
+     <y>145</y>
+     <width>70</width>
+     <height>25</height>
     </rect>
    </property>
    <property name="text">
@@ -85,10 +80,10 @@
   <widget class="QLineEdit" name="passwordEdit">
    <property name="geometry">
     <rect>
-     <x>90</x>
-     <y>140</y>
-     <width>231</width>
-     <height>21</height>
+     <x>75</x>
+     <y>145</y>
+     <width>245</width>
+     <height>25</height>
     </rect>
    </property>
    <property name="echoMode">
@@ -105,7 +100,7 @@
    <property name="geometry">
     <rect>
      <x>230</x>
-     <y>180</y>
+     <y>200</y>
      <width>93</width>
      <height>28</height>
     </rect>
@@ -118,7 +113,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>180</y>
+     <y>200</y>
      <width>194</width>
      <height>31</height>
     </rect>
@@ -134,7 +129,7 @@
     <item>
      <widget class="QPushButton" name="encryptButton">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>encrypt</string>
@@ -152,25 +147,22 @@
     </item>
    </layout>
   </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>131</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Encryption algorithm:</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>algorithmsList</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>Form</receiver>
-   <slot>algorithmsListIndexChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>93</x>
-     <y>24</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>106</x>
-     <y>11</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>contactDataTextEdit</sender>
    <signal>textChanged()</signal>
@@ -195,7 +187,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>76</x>
-     <y>197</y>
+     <y>217</y>
     </hint>
     <hint type="destinationlabel">
      <x>13</x>
@@ -211,7 +203,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>293</x>
-     <y>194</y>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
      <x>289</x>
@@ -227,7 +219,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>147</x>
-     <y>194</y>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
      <x>134</x>
@@ -237,7 +229,6 @@
   </connection>
  </connections>
  <slots>
-  <slot>algorithmsListIndexChanged(int)</slot>
   <slot>textEditTextChanged()</slot>
   <slot>cancelButtonPressed()</slot>
   <slot>exitButtonPressed()</slot>
