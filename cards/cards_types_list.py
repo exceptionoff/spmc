@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 # File containing a list of card types supported by the program
 
 import os

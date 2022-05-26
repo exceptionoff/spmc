@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 # A file containing structures with the technical data of cards, having
 # described them for each card, you can start working with it. To do this,
 # create a file in this directory with the name of the card and the

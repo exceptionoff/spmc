@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 # This file contains the cryptographic primitives
 # necessary for the program to encrypt.
 import typing

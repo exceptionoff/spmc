@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 # This file containing a class for interacting with card readers
 from typing import List, Tuple, Optional, Any
 import logging

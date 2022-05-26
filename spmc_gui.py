@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 # This file containing a class for gui interface of application SPMC
 import sys
 from typing import List, Optional

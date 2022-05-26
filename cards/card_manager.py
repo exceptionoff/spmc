@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 # This file containing a class for interacting with cards using card readers
 
 import importlib

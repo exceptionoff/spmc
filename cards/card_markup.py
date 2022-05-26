@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 # File containing card markup
 import typing
 from hashlib import sha256

@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 # This file contains tests on the encryption algorithms
 # used in the application.
 from collections import namedtuple
