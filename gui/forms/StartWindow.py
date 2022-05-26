@@ -69,13 +69,3 @@ class Ui_Form(object):
         self.readButton.setText(_translate("Form", "Read seed phrase from card"))
         self.exitButton.setText(_translate("Form", "Exit the program"))
         self.label.setText(_translate("Form", "Select action:"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Form = QtWidgets.QWidget()
-    ui = Ui_Form()
-    ui.setupUi(Form)
-    Form.show()
-    sys.exit(app.exec_())

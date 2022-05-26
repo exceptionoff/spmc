@@ -102,13 +102,3 @@ class Ui_Form(object):
         self.exitButton.setText(_translate("Form", "exit"))
         self.label.setText(_translate("Form", "Cardreader:"))
         self.label_2.setText(_translate("Form", "Cardtype:"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Form = QtWidgets.QWidget()
-    ui = Ui_Form()
-    ui.setupUi(Form)
-    Form.show()
-    sys.exit(app.exec_())

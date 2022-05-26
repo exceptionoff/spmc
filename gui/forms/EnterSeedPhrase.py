@@ -85,13 +85,3 @@ class Ui_Form(object):
         self.cancelButton.setText(_translate("Form", "cancel"))
         self.nextButton.setText(_translate("Form", "next"))
         self.exitButton.setText(_translate("Form", "exit"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Form = QtWidgets.QWidget()
-    ui = Ui_Form()
-    ui.setupUi(Form)
-    Form.show()
-    sys.exit(app.exec_())

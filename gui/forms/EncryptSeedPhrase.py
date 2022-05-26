@@ -96,13 +96,3 @@ class Ui_Form(object):
         self.cancelButton.setText(_translate("Form", "cancel"))
         self.encryptButton.setText(_translate("Form", "encrypt"))
         self.label_2.setText(_translate("Form", "Encryption algorithm:"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Form = QtWidgets.QWidget()
-    ui = Ui_Form()
-    ui.setupUi(Form)
-    Form.show()
-    sys.exit(app.exec_())
