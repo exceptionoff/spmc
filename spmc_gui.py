@@ -4,10 +4,10 @@ import sys
 from typing import List, Optional
 from PyQt5 import QtWidgets, uic
 from spmc import Program, CardMarkup
-from gui.forms.StartWindow import Ui_Form as StartWindow_form
-from gui.forms.EnterSeedPhrase import Ui_Form as EnterSeedPhrase_form
-from gui.forms.CardConnection import Ui_Form as CardConnection_form
-from gui.forms.EncryptSeedPhrase import Ui_Form as EncryptSeedPhrase_form
+from gui.forms.StartForm import Ui_Form as StartWindow_form
+from gui.forms.EnterSeedPhraseForm import Ui_Form as EnterSeedPhrase_form
+from gui.forms.CardConnectionForm import Ui_Form as CardConnection_form
+from gui.forms.EncryptSeedPhraseForm import Ui_Form as EncryptSeedPhrase_form
 
 
 class Ui(QtWidgets.QMainWindow):
